@@ -24,6 +24,27 @@ app.get('/', (req, res) => {
 });
 async function run(){
     try{ await client.connect();
+        const database = client.db("assetverse");
+        const assetsCollection = database.collection("assets");
+        const usersCollection = database.collection("users");
+
+        app.post ('/assets',async(req,res)=>{
+            const assets=req.body;
+            const result=await assetsCollection.insertOne(assets);
+            res.send(result);});
+        app.get ('/assets',async(req,res)=>{
+            const elements=assetsCollection.find({});
+            const result=await elements.toAraay();
+            res.send(result);});
+        app.post ('/users',async(req,res)=>{
+            const users=req.body;
+            const result=await usersCollection.insertOne(users);
+            res.send(result);});
+          app.get('/users',async(req,res)=>{
+            const users=usersCollection.find({});
+            const result=await users.toArray();
+            res.send(result);});
+        
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     }
