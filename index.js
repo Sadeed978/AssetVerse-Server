@@ -35,6 +35,12 @@ async function run(){
             const elements=assetsCollection.find({});
             const result=await elements.toArray();
             res.send(result);});
+      app.get('/assts/:email',async(req,res)=>{
+            const email=req.params.email;
+            const query={email:email};
+            const user=await assetsCollection.find(query).toArray();
+            res.send(user);});
+
       app.post ('/users',async(req,res)=>{
             const users=req.body;
             console.log(users);
