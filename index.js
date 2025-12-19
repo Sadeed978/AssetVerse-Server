@@ -35,11 +35,20 @@ async function run(){
             const elements=assetsCollection.find({});
             const result=await elements.toArray();
             res.send(result);});
-      app.get('/assts/:email',async(req,res)=>{
-            const email=req.params.email;
-            const query={email:email};
-            const user=await assetsCollection.find(query).toArray();
-            res.send(user);});
+            
+      app.get ('/assets/:id',async(req,res)=>{
+            const id=req.params.id;
+            const query={_id:id};
+            const result=await assetsCollection.findOne(query);
+            res.send(result);});
+
+      app.get ('/assets/:hremail',async(req,res)=>{
+            const email=req.params.hremail;
+            console.log(email);
+            const query={hrEmail:email};
+            const elements=assetsCollection.find(query);
+            const result=await elements.toArray();
+            res.send(result);});
 
       app.post ('/users',async(req,res)=>{
             const users=req.body;
