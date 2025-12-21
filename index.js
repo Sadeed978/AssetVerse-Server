@@ -26,6 +26,7 @@ async function run(){
       const assetdb = client.db("assetverse");
       const assetsCollection = assetdb.collection("assets");
       const usersCollection = assetdb.collection("users");
+      const requestsCollection = assetdb.collection("requests");
 
       app.post ('/assets',async(req,res)=>{
             const assets=req.body;
@@ -35,14 +36,14 @@ async function run(){
             const elements=assetsCollection.find({});
             const result=await elements.toArray();
             res.send(result);});
-            
+
       app.get ('/assets/:id',async(req,res)=>{
             const id=req.params.id;
             const query={_id:id};
             const result=await assetsCollection.findOne(query);
             res.send(result);});
 
-      app.get ('/assets/:hremail',async(req,res)=>{
+      app.get ('/assets/hr/:hremail',async(req,res)=>{
             const email=req.params.hremail;
             console.log(email);
             const query={hrEmail:email};
@@ -52,9 +53,7 @@ async function run(){
 
       app.post ('/users',async(req,res)=>{
             const users=req.body;
-            console.log(users);
             const result=await usersCollection.insertOne(users);
-            console.log(result);
             res.send(result);});
       app.get('/users',async(req,res)=>{
             const users=usersCollection.find({});
@@ -65,6 +64,26 @@ async function run(){
             const query={email:email};
             const user=await usersCollection.findOne(query);
             res.send(user);});
+      app.get('/pacages',async(req,res)=>{
+            const pacages=assetdb.collection("Pacages");
+            const elements=pacages.find({});
+            const result=await elements.toArray();
+            res.send(result);});
+      app.post ('/requests',async(req,res)=>{
+            const requests=req.body;
+            const result=await requestsCollection.insertOne(requests);
+            res.send(result);});
+      app.get ('/requests',async(req,res)=>{
+            const elements=requestsCollection.find({});
+            const result=await elements.toArray();
+            res.send(result);});
+      app.get ('/requests/:email',async(req,res)=>{
+            const email=req.params.email;
+            const query={userEmail:email};
+            const elements=requestsCollection.find(query);
+            const result=await elements.toArray();
+            res.send(result);});
+            
         
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
