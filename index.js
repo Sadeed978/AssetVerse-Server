@@ -27,7 +27,8 @@ async function run() {
             const assetsCollection = assetdb.collection("assets");
             const usersCollection = assetdb.collection("users");
             const requestsCollection = assetdb.collection("requests");
-
+            const employeeAffiliationCollection = assetdb.collection("employeeAffiliation");
+            
             app.post('/assets', async (req, res) => {
                   const assets = req.body;
                   const result = await assetsCollection.insertOne(assets);
@@ -65,10 +66,11 @@ async function run() {
                   const result = await users.toArray();
                   res.send(result);
             });
-            app.put('/users/:email', async (req, res) => {
+            app.patch('/users/:email', async (req, res) => {
                   const email = req.params.email;
                   const filter = { email: email };
                   const updatedUser = req.body;
+                  console.log(updatedUser);
                   const options = { upsert: true };
                   const updateDoc = {
                         $set: {
@@ -80,7 +82,7 @@ async function run() {
                   };
                   const result = await usersCollection.updateOne(filter, updateDoc, options);
                   res.send(result);
-            },);
+            });
       app.get('/users/:email', async (req, res) => {
                   const email = req.params.email;
                   const query = { email: email };
@@ -98,31 +100,29 @@ async function run() {
                   const result = await requestsCollection.insertOne(requests);
                   res.send(result);
             });
-            app.get('/requests', async (req, res) => {
-                  const elements = requestsCollection.find({});
+
+            
+           app.get('/requests/:email', async (req, res) => {
+                  const email = req.params.email;
+                  const query = { hrEmail: email };
+                  const elements = requestsCollection.find(query);
                   const result = await elements.toArray();
                   res.send(result);
             });
-            app.delete('/requests/:id', async (req, res) => {
-                  const id = req.params.id;
-                  const query = { _id: new ObjectId(id) };
-                  const result = await requestsCollection.deleteOne(query);
-                  res.send(result);
-            });
-            app.put('/requests/:id', async (req, res) => {
+            app.patch('/requests/hrEmail/:id', async (req, res) => {
                   const id = req.params.id;
                   const filter = { _id: new ObjectId(id) };
-                  const updatedReq = req.body;
+                  const updatedRequest = req.body;
                   const options = { upsert: true };
                   const updateDoc = {
                         $set: {
-                              status: updatedReq.status
-                        },
+                              status: updatedRequest.status
+
+                },
                   };
                   const result = await requestsCollection.updateOne(filter, updateDoc, options);
                   res.send(result);
             });
-
 
             app.get('/requests/:email', async (req, res) => {
                   const email = req.params.email;
@@ -131,6 +131,18 @@ async function run() {
                   const result = await elements.toArray();
                   res.send(result);
             });
+
+            app.post('/employeeAffiliation', async (req, res) => {
+                  const affiliation = req.body;
+                  const result = await employeeAffiliationCollection.insertOne(affiliation);
+                  res.send(result);
+            });
+            app.get('/employeeAffiliation/:email', async (req, res) => {
+                  const email = req.params.email;
+                  const query = { employeeEmail: email };
+                  const affiliation = await employeeAffiliationCollection.findOne(query);
+                  res.send(affiliation);
+            });            
 
             await client.db("admin").command({ ping: 1 });
             console.log("Pinged your deployment. You successfully connected to MongoDB!");
