@@ -3,10 +3,28 @@ require('dotenv').config();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
+constjwt = require('jsonwebtoken');
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+const verifyJWT = (req, res, next) => {
+      const authorization = req.headers.authorization;
+      if (!authorization) {
+            return res.status(401).send({ error: true, message: 'unauthorized access' });
+      }
+      const token = authorization.split(' ')[1];
+
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+            if (err) {
+                  return res.status(403).send({ error: true, message: 'forbidden access' })
+            }
+            req.decoded = decoded;
+            next();
+      });
+};
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bhxscno.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
@@ -16,6 +34,8 @@ const client = new MongoClient(uri, {
             deprecationErrors: true,
       }
 });
+
+ 
 
 app.get('/', (req, res) => {
       res.send('Hello World!');
@@ -28,6 +48,20 @@ async function run() {
             const usersCollection = assetdb.collection("users");
             const requestsCollection = assetdb.collection("requests");
             const employeeAffiliationCollection = assetdb.collection("employeeAffiliation");
+            
+            const verifyHR = async (req, res, next) => {
+                  const email = req.params.email;
+                  const user = await usersCollection.findOne({ email: email });
+                  if (user?.role !== 'hr') {
+                        return res.status(403).send({ error: true, message: 'forbidden access' })
+                  }
+                  next();
+            };
+            app.post('/jwt', (req, res) => {
+                  const user = req.body;
+                  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+                  res.send({ token });
+            });
             
             app.post('/assets', async (req, res) => {
                   const assets = req.body;
