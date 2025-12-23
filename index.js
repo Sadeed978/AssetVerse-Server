@@ -62,7 +62,7 @@ async function run() {
                   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
                   res.send({ token });
             });
-            
+
             app.post('/assets', async (req, res) => {
                   const assets = req.body;
                   const result = await assetsCollection.insertOne(assets);
@@ -123,6 +123,8 @@ async function run() {
                   const user = await usersCollection.findOne(query);
                   res.send(user);
             });
+
+      
             app.get('/pacages', async (req, res) => {
                   const pacages = assetdb.collection("Pacages");
                   const elements = pacages.find({});
@@ -176,10 +178,19 @@ async function run() {
                   const query = { employeeEmail: email };
                   const affiliation = await employeeAffiliationCollection.findOne(query);
                   res.send(affiliation);
-            });            
+            }); 
+            
+            app.get('/employeeAffiliation/hr/:hremail', async (req, res) => {
+                        const email = req.params.hremail;
+                        const query = { hrEmail: email };
+                        const elements = employeeAffiliationCollection.find(query);
+                        const result = await elements.toArray();
+                        res.send(result);
+                  });
+            
 
-            await client.db("admin").command({ ping: 1 });
-            console.log("Pinged your deployment. You successfully connected to MongoDB!");
+           // await client.db("admin").command({ ping: 1 });
+            //console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
       }
       finally {
